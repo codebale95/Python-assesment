@@ -1,8 +1,19 @@
-
+# report_card_functions.py
 # This file contains all the functions for the report card generator
 
 # Global list to store report cards
 report_cards = []
+import csv
+import json
+report_cards = []
+
+with open('students.csv', mode='r', newline='') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        # Convert JSON string → dict
+        row['subjects'] = json.loads(row['subjects'])
+        report_cards.append(row)
+
 
 def create_report_card():
     """
@@ -32,16 +43,19 @@ def create_report_card():
 
     report_cards.append(report_card)
     print("Report card created successfully!")
+    print(report_cards)
 
 def view_report_card():
     """
     Views an existing report card by registration number.
     """
-    reg_no = input("Enter registration number: ")
+    reg_no = input("Enter registration number of the student to be found: ")
+    semester = input("Enter semester whose result is to be found: ")
     for card in report_cards:
-        if card['reg_no'] == reg_no:
+        if card['reg_no'] == reg_no and card['semester']==semester:
             display_report_card(card)
             return
+        
     print("Report card not found. Please try again.")
     view_report_card()
 
@@ -51,8 +65,9 @@ def update_report_card():
     Provides options to add, update, or delete subjects.
     """
     reg_no = input("Enter registration number: ")
+    semester = input("Enter semester whose result is to be found: ")
     for card in report_cards:
-        if card['reg_no'] == reg_no:
+        if card['reg_no'] == reg_no and card['semester']==semester:
             while True:
                 print("\nUpdate Options:")
                 print("1. Add new subject")
@@ -94,8 +109,9 @@ def remove_report_card():
     Removes an existing report card by registration number.
     """
     reg_no = input("Enter registration number: ")
+    semester = input("Enter semester whose result is to be found: ")
     for i, card in enumerate(report_cards):
-        if card['reg_no'] == reg_no:
+        if card['reg_no'] == reg_no and card['semester']==semester:
             report_cards.pop(i)
             print("Report card removed successfully!")
             return
@@ -168,3 +184,14 @@ def display_report_card(card):
     print(f"Percentage: {percentage:.2f}%")
     print(f"Grade: {grade}")
     print("="*50)
+def exiting():
+    fieldnames = ['name', 'semester', 'reg_no', 'batch', 'subjects']
+
+    with open('students.csv', mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in report_cards:
+            row = record.copy()
+            # Convert subjects dict → JSON string
+            row['subjects'] = json.dumps(record['subjects'])
+            writer.writerow(row)

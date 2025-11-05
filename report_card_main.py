@@ -5,7 +5,8 @@ from report_card_functions import (
     create_report_card,
     view_report_card,
     update_report_card,
-    remove_report_card
+    remove_report_card,
+    exiting
 )
 
 def main_menu():
@@ -35,6 +36,7 @@ def main_menu():
             remove_report_card()
         elif choice == '5':
             print("Exiting the program. Goodbye!")
+            exiting()
             break
         else:
             print("Invalid choice. Please enter a number between 1 and 5.")
