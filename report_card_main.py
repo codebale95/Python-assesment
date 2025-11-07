@@ -6,7 +6,8 @@ from report_card_functions import (
     view_report_card,
     update_report_card,
     remove_report_card,
-    exiting
+    exiting,
+    view_all_report_cards
 )
 
 def main_menu():
@@ -21,10 +22,11 @@ def main_menu():
         print("2. View existing report card")
         print("3. Update a report card")
         print("4. Remove existing report card")
-        print("5. Exit")
+        print('5: To view all the report cards')
+        print("6. Exit")
         print("="*50)
 
-        choice = input("Enter your choice (1-5): ")
+        choice = input("Enter your choice (1-6): ")
 
         if choice == '1':
             create_report_card()
@@ -34,7 +36,9 @@ def main_menu():
             update_report_card()
         elif choice == '4':
             remove_report_card()
-        elif choice == '5':
+        elif choice=='5':
+            view_all_report_cards()
+        elif choice == '6':
             print("Exiting the program. Goodbye!")
             exiting()
             break

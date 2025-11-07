@@ -5,6 +5,7 @@
 report_cards = []
 import csv
 import json
+import ast
 report_cards = []
 
 with open('students.csv', mode='r', newline='') as file:
@@ -158,32 +159,56 @@ def calculate_grade(percentage):
         return 'D'
     else:
         return 'F'
-
 def display_report_card(card):
     """
-    Displays the full report card with calculations.
+    Displays the report card in a single horizontal table with borders.
     """
-    print("\n" + "="*50)
-    print("REPORT CARD")
-    print("="*50)
-    print(f"Name: {card['name']}")
-    print(f"Semester: {card['semester']}")
-    print(f"Registration No: {card['reg_no']}")
-    print(f"Batch: {card['batch']}")
-    print("\nSubjects and Marks:")
-    for subject, marks in card['subjects'].items():
-        print(f"  {subject}: {marks}")
 
+    # Calculations
     total = calculate_total_marks(card['subjects'])
     average = calculate_average_marks(card['subjects'])
     percentage = calculate_percentage(total, len(card['subjects']))
     grade = calculate_grade(percentage)
 
-    print(f"\nTotal Marks: {total}")
-    print(f"Average Marks: {average:.2f}")
-    print(f"Percentage: {percentage:.2f}%")
-    print(f"Grade: {grade}")
-    print("="*50)
+    # Format subjects as single string
+    subjects_str = ", ".join(f"{sub}: {marks}" for sub, marks in card['subjects'].items())
+
+    # Table header and row data
+    headers = [
+        "Name", "Semester", "Reg No", "Batch",
+        "Subjects", "Total", "Average", "Percentage", "Grade"
+    ]
+
+    row = [
+        card['name'],
+        card['semester'],
+        card['reg_no'],
+        card['batch'],
+        subjects_str,
+        str(total),
+        f"{average:.2f}",
+        f"{percentage:.2f}%",
+        grade
+    ]
+
+    # Calculate column widths
+    col_widths = [
+        max(len(headers[i]), len(row[i])) + 2
+        for i in range(len(headers))
+    ]
+
+    # Helper to print horizontal line
+    def print_line():
+        print("+" + "+".join("-" * w for w in col_widths) + "+")
+
+    # Print table
+    print_line()
+    print("|" + "|".join(headers[i].center(col_widths[i]) for i in range(len(headers))) + "|")
+    print_line()
+    print("|" + "|".join(row[i].ljust(col_widths[i]) for i in range(len(row))) + "|")
+    print_line()
+
+
 def exiting():
     fieldnames = ['name', 'semester', 'reg_no', 'batch', 'subjects']
 
@@ -195,3 +220,50 @@ def exiting():
             # Convert subjects dict → JSON string
             row['subjects'] = json.dumps(record['subjects'])
             writer.writerow(row)
+
+def view_all_report_cards():
+
+    # Read CSV
+    with open("students.csv", newline='') as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+
+    header = rows[0] + ["Average", "Grade"]
+    data = []
+
+# Process each student row
+    for row in rows[1:]:
+        name, semester, reg_no, batch, subjects = row
+    
+        subject_dict = ast.literal_eval(subjects)  # convert to dict
+    
+        marks = list(subject_dict.values())
+        avg = sum(marks) / len(marks)
+        grade = calculate_grade(avg)
+
+        data.append([name, semester, reg_no, batch, subjects, f"{avg:.2f}", grade])
+
+    # Combine for full table
+    table = [header] + data
+
+    # Calculate column widths
+    col_widths = [max(len(str(cell)) for cell in col) for col in zip(*table)]
+
+    # Function to print horizontal line
+    def print_line():
+        line = "+"
+        for w in col_widths:
+            line += "-" * (w + 2) + "+"
+        print(line)
+
+    # Print table with borders
+    print_line()
+    print("| " + " | ".join(cell.ljust(width) for cell, width in zip(header, col_widths)) + " |")
+    print_line()
+
+    for row in data:
+        print("| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, col_widths)) + " |")
+        print_line()
+
+
+    
