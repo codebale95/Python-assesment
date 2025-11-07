@@ -44,7 +44,7 @@ def create_report_card():
 
     report_cards.append(report_card)
     print("Report card created successfully!")
-    print(report_cards)
+    
 
 def view_report_card():
     """
